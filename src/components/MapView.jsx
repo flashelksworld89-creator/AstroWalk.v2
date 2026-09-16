@@ -11,7 +11,7 @@ function Label({ position, children, kind = '', permanent = true }) {
   </CircleMarker>;
 }
 
-function Wheel({ center, rangeMiles, placements, ascendant, selectedId, onSelectPlanet, layers, locationLabel, corridorMiles, fullScreen }) {
+function Wheel({ center, rangeMiles, placements, ascendant, selectedId, onSelectPlanet, layers, locationLabel, corridorMiles, fullScreen, compact }) {
   const map = useMap();
   const [, redraw] = useState(0);
   useMapEvents({ zoomend: () => redraw(v => v + 1), moveend: () => redraw(v => v + 1), resize: () => redraw(v => v + 1) });
@@ -28,8 +28,8 @@ function Wheel({ center, rangeMiles, placements, ascendant, selectedId, onSelect
     map.invalidateSize();
     const narrow = map.getSize().x < 721;
     const bounds = [point(center, 0, radius), point(center, 90, radius), point(center, 180, radius), point(center, 270, radius)];
-    map.fitBounds(bounds, { paddingTopLeft: [narrow ? 18 : 60, fullScreen ? 155 : 115], paddingBottomRight: [fullScreen ? 30 : narrow ? 18 : 390, fullScreen ? 35 : narrow ? 265 : 100], animate: false });
-  }, [center.lat, center.lng, radius, map, fullScreen]);
+    map.fitBounds(bounds, { paddingTopLeft: compact ? [24,65] : [narrow ? 18 : 60, fullScreen ? 155 : 115], paddingBottomRight: compact ? [24,40] : [fullScreen ? 30 : narrow ? 18 : 390, fullScreen ? 140 : narrow ? 265 : 100], maxZoom: 21, animate: false });
+  }, [center.lat, center.lng, radius, map, fullScreen, compact]);
   useEffect(() => {
     const observer = new ResizeObserver(() => map.invalidateSize());
     observer.observe(map.getContainer());
@@ -40,7 +40,7 @@ function Wheel({ center, rangeMiles, placements, ascendant, selectedId, onSelect
   const visiblePlanets = [...placements].sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId));
   function markerPosition(planet) {
     if (planet.id === selectedId && pixelRadius > 1) {
-      const usable = Math.min(originPixel.x - 55, size.x - originPixel.x - 55, originPixel.y - 110, size.y - originPixel.y - (fullScreen ? 45 : 260));
+      const usable = Math.min(originPixel.x - 55, size.x - originPixel.x - 55, originPixel.y - (compact ? 60 : 110), size.y - originPixel.y - (compact ? 45 : fullScreen ? 140 : 260));
       if (usable > 35) {
         const pos = point(center, planet.bearing, radius * Math.min(.66, usable / pixelRadius));
         labelBoxes.push(map.latLngToContainerPoint(pos));
@@ -121,12 +121,12 @@ export default function MapView(props) {
   const [tileError, setTileError] = useState(false);
   const selected = props.placements.find(p => p.id === props.selectedId) || props.placements[0];
   return <div className="map-frame" aria-label="Sidereal planetary map">
-    <MapContainer center={[props.center.lat, props.center.lng]} zoom={11} zoomControl={false} className="leaflet-map">
-      <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} keepBuffer={1}
+    <MapContainer center={[props.center.lat, props.center.lng]} zoom={11} maxZoom={21} zoomControl={false} className="leaflet-map">
+      <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxNativeZoom={19} maxZoom={21} keepBuffer={1}
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         eventHandlers={{ tileerror: () => setTileError(true) }} />
       <Wheel {...props} />
-      {props.fullScreen && <ZoomControl position="bottomleft" />}
+      {(props.fullScreen || props.compact) && <ZoomControl position="bottomleft" />}
     </MapContainer>
     <details className="wheel-key"><summary>Wheel key · houses / nakshatras / zodiac</summary><p>Solid/dashed spokes: houses. Blue numbered ring: nakshatras. Gold outer ring: zodiac. Gold ray: selected planet’s mapped direction.</p><ol>{NAKSHATRAS.map(name => <li key={name}>{name}</li>)}</ol></details>
     {selected && <div className="bearing-chip"><span>{selected.glyph}</span><strong>{Math.round(selected.bearing)}° {cardinalDirection(selected.bearing)} · {selected.nakshatraIndex + 1} {selected.nakshatra}</strong></div>}

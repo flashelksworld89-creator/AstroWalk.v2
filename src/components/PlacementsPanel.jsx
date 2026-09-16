@@ -1,7 +1,7 @@
 import { Check, RotateCcw } from 'lucide-react';
-import { NAKSHATRAS, PLANETS, SIGNS } from '../lib/astro';
+import { NAKSHATRAS, PLANETS, SIGNS, formatSignDegree } from '../lib/astro';
 
-export default function PlacementsPanel({ mode, onModeChange, inputs, onUpdate, onReset }) {
+export default function PlacementsPanel({ mode, onModeChange, inputs, onUpdate, onReset, placements, chartDate, timeOffset }) {
   return (
     <section className="workspace-panel placements-panel">
       <div className="panel-heading">
@@ -17,10 +17,10 @@ export default function PlacementsPanel({ mode, onModeChange, inputs, onUpdate, 
       </div>
 
       {mode === 'live' ? (
-        <div className="live-message">
+        <><div className="live-message">
           <Check size={18} aria-hidden="true" />
-          <div><strong>Current transits are active</strong><p>Planet positions and equal-house placements update from the selected map location and current time.</p></div>
-        </div>
+          <div><strong>{timeOffset === 0 ? 'Current transits are active' : 'Time preview is active'}</strong><p>Calculated for {chartDate.toLocaleString()} at the active map location. Approximate Lahiri sidereal; equal houses; mean Rahu/Ketu.</p></div>
+        </div><div className="placement-table-wrap"><table className="placement-table"><thead><tr><th>Planet</th><th>Sidereal placement</th><th>House</th><th>Nakshatra</th><th>Pada</th><th>Mapped bearing</th></tr></thead><tbody>{placements.map(p => <tr key={p.id}><th>{p.glyph} {p.name}</th><td>{formatSignDegree(p)}</td><td>H{p.house}</td><td>{p.nakshatra}</td><td>{p.pada}</td><td>{p.bearing.toFixed(1)}°</td></tr>)}</tbody></table></div></>
       ) : (
         <>
           <div className="placements-toolbar">

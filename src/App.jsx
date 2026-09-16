@@ -23,6 +23,7 @@ import PlanetTray from './components/PlanetTray';
 import PlacementsPanel from './components/PlacementsPanel';
 import DefinitionsPanel from './components/DefinitionsPanel';
 import StreetViewPanel from './components/StreetViewPanel';
+import TimeControls from './components/TimeControls';
 import {
   DEFAULT_DEFINITIONS,
   NAKSHATRAS,
@@ -106,6 +107,20 @@ export default function App() {
   }, [fullScreen]);
   const [mode, setMode] = useState(() => readStored('astrowalk.mode', 'live'));
   const [now, setNow] = useState(() => new Date());
+  const [timeOffset, setTimeOffset] = useState(0);
+  const [timeAnchor, setTimeAnchor] = useState(null);
+  const [manualTime, setManualTime] = useState(() => new Date());
+  const [streetPosition, setStreetPosition] = useState(null);
+  const changeTime = minutes => {
+    if (mode === 'manual') return;
+    const offset = Math.max(-720, Math.min(720, minutes));
+    setTimeOffset(offset);
+    if (offset === 0) {setTimeAnchor(null);setNow(new Date());}
+    else if (timeAnchor === null) setTimeAnchor(now.getTime());
+  };
+  const chartDate = useMemo(() => mode === 'manual' ? manualTime : timeOffset === 0 ? now : new Date(timeAnchor + timeOffset * 60000), [mode, manualTime, now, timeAnchor, timeOffset]);
+  const chartCenter = activeTab === 'street' && streetPosition ? streetPosition : center;
+  useEffect(() => setStreetPosition(null), [center.lat, center.lng]);
   const [rangeMiles, setRangeMiles] = useState(() => readStored('astrowalk.rangeMiles', 10));
   const [corridorMiles, setCorridorMiles] = useState(() => readStored('astrowalk.corridorMiles', 0.25));
   const [units, setUnits] = useState(() => readStored('astrowalk.units', 'imperial'));
@@ -119,8 +134,8 @@ export default function App() {
   const [compassError, setCompassError] = useState('');
   const [layers, setLayers] = useState({ zodiac: true, nakshatras: true, houses: true });
 
-  const livePlacements = useMemo(() => computeLivePlacements(now, center.lat, center.lng), [now, center.lat, center.lng]);
-  const ascendant = useMemo(() => siderealAscendant(now, center.lat, center.lng), [now, center.lat, center.lng]);
+  const livePlacements = useMemo(() => computeLivePlacements(chartDate, chartCenter.lat, chartCenter.lng), [chartDate, chartCenter.lat, chartCenter.lng]);
+  const ascendant = useMemo(() => siderealAscendant(chartDate, chartCenter.lat, chartCenter.lng), [chartDate, chartCenter.lat, chartCenter.lng]);
   const [manualInputs, setManualInputs] = useState(() => readStored('astrowalk.manualPlacements', toManualInputs(livePlacements)));
   const manualPlacements = useMemo(() => manualInputs.map(makeManualPlacement), [manualInputs]);
   const placements = mode === 'manual' ? manualPlacements : livePlacements;
@@ -247,7 +262,7 @@ export default function App() {
   return (
     <div className={`app-shell${fullScreen ? ' map-fullscreen' : ''}`}>
       <header className="app-header">
-        <div className="brand-block"><div className="brand-mark"><Compass size={21} /></div><div><h1>AstroWalk</h1><p>Sidereal map compass · v2.0</p></div></div>
+        <div className="brand-block"><div className="brand-mark"><Compass size={21} /></div><div><h1>AstroWalk</h1><p>Sidereal map compass · v2.1</p></div></div>
         <form className="location-search" onSubmit={searchLocation}>
           <Search size={17} aria-hidden="true" />
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Enter an address, city, landmark, or coordinates" aria-label="Search for a location" />
@@ -264,10 +279,12 @@ export default function App() {
       {(locationError || compassError) && <div className="error-banner" role="alert">{locationError || compassError}</div>}
 
       <NavigationTabs active={activeTab} onChange={setActiveTab} />
+      {!fullScreen && <TimeControls date={chartDate} offset={timeOffset} onChange={changeTime} manual={mode === 'manual'} />}
 
       <main className="app-main">
         {activeTab === 'map' && (
           <section ref={mapSection} className={`map-workspace${fullScreen ? ' expanded-map' : ''}`}>
+            {fullScreen && <div className="fullscreen-time"><TimeControls date={chartDate} offset={timeOffset} onChange={changeTime} manual={mode === 'manual'} /></div>}
             <div className="map-controls">
               <div className="range-control">
                 <label htmlFor="range">Wheel radius</label>
@@ -289,7 +306,7 @@ export default function App() {
                 </div>
               )}
               <div className="location-chip"><MapPin size={14} /><span title={locationLabel}>{locationLabel}</span></div>
-              <div className="source-chip">{mode === 'live' ? 'Live transits' : 'Manual placements'} · Lahiri</div>
+              <div className="source-chip">{mode === 'manual' ? 'Manual placements' : timeOffset === 0 ? 'Live transits' : 'Time preview'} · Lahiri</div>
             </div>
 
             <MapView
@@ -310,7 +327,7 @@ export default function App() {
             {selected && (
               <aside className={showRoute ? 'planet-detail route-open' : 'planet-detail'}>
                 <button className="detail-close" type="button" onClick={() => setShowRoute(false)} aria-label="Collapse planet details"><X size={17} /></button>
-                <div className="detail-title"><span>{selected.glyph}</span><div><p>{mode === 'live' ? 'Live sidereal transit' : 'Manual placement'}</p><h2>{selected.name}</h2></div>{selected.retrograde && <em>Retrograde</em>}</div>
+                <div className="detail-title"><span>{selected.glyph}</span><div><p>{mode === 'manual' ? 'Manual placement' : timeOffset === 0 ? 'Live sidereal transit' : 'Sidereal time preview'}</p><h2>{selected.name}</h2></div>{selected.retrograde && <em>Retrograde</em>}</div>
                 <div className="detail-grid">
                   <div><small>Placement</small><strong>{formatSignDegree(selected)}</strong></div>
                   <div><small>House</small><strong>H{selected.house} · {String(Math.round(selected.bearing)).padStart(3, '0')}° {cardinalDirection(selected.bearing)}</strong></div>
@@ -341,10 +358,10 @@ export default function App() {
         )}
 
         {activeTab === 'street' && selected && (
-          <StreetViewPanel destination={destination} bearing={selected.bearing} planet={selected} onBack={() => setActiveTab('map')} />
+          <StreetViewPanel origin={center} position={streetPosition || center} onPosition={setStreetPosition} planet={selected} placements={placements} ascendant={ascendant} selectedId={selectedId} onSelect={setSelectedId} layers={layers} onBack={() => setActiveTab('map')} />
         )}
         {activeTab === 'placements' && (
-          <PlacementsPanel mode={mode} onModeChange={setMode} inputs={manualInputs} onUpdate={updateManualInput} onReset={resetManual} />
+          <PlacementsPanel mode={mode} onModeChange={value => { if(value === 'manual') setManualTime(chartDate); setMode(value); }} chartDate={chartDate} timeOffset={timeOffset} placements={livePlacements} inputs={manualInputs} onUpdate={updateManualInput} onReset={resetManual} />
         )}
         {activeTab === 'definitions' && (
           <DefinitionsPanel definitions={definitions} setDefinitions={setDefinitions} center={center} locationLabel={locationLabel} />

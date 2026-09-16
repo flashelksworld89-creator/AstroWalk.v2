@@ -77,17 +77,20 @@ function meanNodeLongitude(date) {
 }
 
 export function siderealAscendant(date, lat, lng) {
-  const jd = julianDate(date);
-  const T = (jd - 2451545.0) / 36525;
-  const gmst = normalize(
-    280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T - (T ** 3) / 38710000
+  const time = Astronomy.MakeTime(date);
+  const rotation = Astronomy.CombineRotation(
+    Astronomy.Rotation_ECT_EQD(time),
+    Astronomy.Rotation_EQD_HOR(time, new Astronomy.Observer(lat, lng, 0)),
   );
-  const theta = normalize(gmst + lng) * Math.PI / 180;
-  const epsilon = (23.439291111 - 0.013004167 * T) * Math.PI / 180;
-  const phi = Math.max(-89.5, Math.min(89.5, lat)) * Math.PI / 180;
-  const y = -Math.cos(theta);
-  const x = Math.sin(epsilon) * Math.tan(phi) + Math.cos(epsilon) * Math.sin(theta);
-  return normalize(Math.atan2(y, x) * 180 / Math.PI - lahiriAyanamsa(date));
+  // Intersect the true ecliptic plane with the observer's geometric horizon.
+  const xAxis = Astronomy.RotateVector(rotation, new Astronomy.Vector(1, 0, 0, time));
+  const yAxis = Astronomy.RotateVector(rotation, new Astronomy.Vector(0, 1, 0, time));
+  let longitude = Math.atan2(-xAxis.z, yAxis.z);
+  const candidate = Astronomy.RotateVector(rotation, new Astronomy.Vector(Math.cos(longitude), Math.sin(longitude), 0, time));
+  const horizon = Astronomy.HorizonFromVector(candidate, '');
+  // The opposite intersection is the descendant: always choose the east half.
+  if (horizon.lon >= 180) longitude += Math.PI;
+  return normalize(longitude * 180 / Math.PI - lahiriAyanamsa(date));
 }
 
 export function placementFromLongitude(id, siderealLongitude, ascendant, retrograde = false) {

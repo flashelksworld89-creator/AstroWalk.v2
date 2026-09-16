@@ -1,23 +1,62 @@
-# AstroWalk 2.0 — fresh project
+# AstroWalk 2.1 — Street View and time controls
 
-Complete source for a NEW GitHub repository and NEW Vercel project.
+Complete updated source for your existing AstroWalk 2.0 repository.
+
+## What changed
+
+- Time slider from -12 to +12 hours in 15-minute increments; hourly step buttons
+  and Now. The preview instant stays fixed until you move it or return to Now.
+  Displayed times use the browser timezone (UTC is also exposed in the title).
+- All twelve calculated placements, signs, degrees, nakshatras, padas and equal
+  houses use the same selected instant and active location. Manual placements
+  remain fixed and time controls are disabled in Manual mode.
+- The ascendant explicitly selects the eastern ecliptic/horizon intersection;
+  the earlier formula could select the western intersection and shift houses.
+- Street View searches within 100 meters of the entered map location, not the
+  distant planet-line endpoint. The companion wheel follows panorama movement.
+- Street wheel radius: 25–2,500 feet, default 500 feet. This is center-to-edge
+  ground distance on the companion map, not a perspective overlay on photographs.
+- Missing-key, imagery-unavailable and connection-error messages with retry.
+
+## Connect interactive Street View (required for imagery inside the app)
+
+1. In Google Cloud, use a project with billing enabled and enable Maps JavaScript
+   API. This release uses its Street View service; an Embed-only key is not enough.
+2. Create or update a browser API key. Restrict it to Maps JavaScript API and to
+   your website's HTTPS referrers, for example https://YOUR-SITE.vercel.app/*.
+   Add a specific preview domain if you test there. Do not permit every website.
+3. Vercel > your project > Settings > Environment Variables:
+   name VITE_GOOGLE_MAPS_API_KEY; value your browser key. Include Production,
+   and Preview only if you intend to use it there.
+4. Save and redeploy the latest source so Vite includes the key. Browser API keys
+   are public in built JavaScript; website/API restrictions protect their use.
+5. Open Street view at a covered street. Google bills interactive panoramas under
+   its Maps Platform pricing. Key setup cannot create imagery where none exists.
+
+Sources:
+- https://developers.google.com/maps/documentation/javascript/streetview
+- https://developers.google.com/maps/documentation/javascript/error-messages
+
+Without this setup, the companion map and Google handoff work, but embedded
+photographs cannot load. Chart time does not change the date of recorded imagery.
 
 ## Upload once
 
 1. Extract the ZIP. Open the extracted folder until you see package.json,
    vercel.json, index.html, src, public, and tests together.
-2. Create a GitHub repository, for example astrowalk-v2.
+2. Open your existing AstroWalk v2 GitHub repository.
 3. Upload ALL those files and folders to the repository's top level. Upload the
    contents, not the ZIP and not an extra enclosing folder. Commit the upload.
-4. In Vercel, add a NEW project and import that new repository.
+4. Your connected Vercel project will deploy the commit.
 5. Framework: Vite. Root Directory: repository root (leave the default).
    Build Command: npm run build. Output Directory: dist.
    The included vercel.json specifies the build and output automatically.
-6. Deploy, then use the NEW project's Visit link. The header says v2.0.
+6. Once Ready, use the project's Visit link. The header says v2.1.
 
 There is deliberately no prebuilt dist folder in this ZIP. Vercel must build
 from source. No map key, login system, Base44 service or database is needed to
-open the map. Do not copy files from the previous repository into this one.
+open the map. Upload this complete release together; do not mix individual files
+from an older release.
 
 Vercel configuration reference: https://vercel.com/docs/project-configuration
 
@@ -45,10 +84,9 @@ from the center. A projected planet marker is a symbolic compass direction,
 not the celestial body's physical position on Earth or its true sky azimuth.
 Navigation uses Google Maps streets rather than following the straight ray.
 
-Embedded Street View is optional: set VITE_GOOGLE_MAPS_API_KEY in Vercel to
-a Maps Embed API browser key restricted to your deployed domain. Redeploy after
-adding it. Without a key, the Open Street View link works as a handoff. This
-release does not draw a geographically tracked wheel inside Google's panorama.
+Interactive Street View requires the Maps JavaScript API setup above. Without
+a key, the Open in Google link works as a handoff. The geographically tracked
+wheel is on a companion map, not inside the panorama.
 
 Public tile/geocoding services and Google imagery need a network connection and
 remain subject to their availability and usage rules. Production traffic may

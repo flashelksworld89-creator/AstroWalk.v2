@@ -1,122 +1,93 @@
-# AstroWalk 2.1 — Street View and time controls
+# AstroWalk 2.2 — Walking Map
 
-Complete updated source for your existing AstroWalk 2.0 repository.
+Complete update for your existing AstroWalk repository. No new repository or
+Google API key is needed.
 
-## What changed
+## Install the update
 
-- Time slider from -12 to +12 hours in 15-minute increments; hourly step buttons
-  and Now. The preview instant stays fixed until you move it or return to Now.
-  Displayed times use the browser timezone (UTC is also exposed in the title).
-- All twelve calculated placements, signs, degrees, nakshatras, padas and equal
-  houses use the same selected instant and active location. Manual placements
-  remain fixed and time controls are disabled in Manual mode.
-- The ascendant explicitly selects the eastern ecliptic/horizon intersection;
-  the earlier formula could select the western intersection and shift houses.
-- Street View searches within 100 meters of the entered map location, not the
-  distant planet-line endpoint. The companion wheel follows panorama movement.
-- Street wheel radius: 25–2,500 feet, default 500 feet. This is center-to-edge
-  ground distance on the companion map, not a perspective overlay on photographs.
-- Missing-key, imagery-unavailable and connection-error messages with retry.
+1. Extract this ZIP into a new folder.
+2. Open your current GitHub repository's main page, then Add file > Upload files.
+3. Upload all the extracted contents together: src, tests, public, package.json,
+   package-lock.json, index.html, vite.config.js, vercel.json, and README.md.
+   Do not upload the ZIP or an extra enclosing folder.
+4. Commit changes. Your connected Vercel project builds the source automatically.
+5. Open the Ready production deployment. The header identifies version 2.2.
 
-## Connect interactive Street View (required for imagery inside the app)
+Keep Vercel's repository root at its default. The included vercel.json sets
+Vite, npm run build, and output directory dist. No prebuilt dist is shipped.
 
-1. In Google Cloud, use a project with billing enabled and enable Maps JavaScript
-   API. This release uses its Street View service; an Embed-only key is not enough.
-2. Create or update a browser API key. Restrict it to Maps JavaScript API and to
-   your website's HTTPS referrers, for example https://YOUR-SITE.vercel.app/*.
-   Add a specific preview domain if you test there. Do not permit every website.
-3. Vercel > your project > Settings > Environment Variables:
-   name VITE_GOOGLE_MAPS_API_KEY; value your browser key. Include Production,
-   and Preview only if you intend to use it there.
-4. Save and redeploy the latest source so Vite includes the key. Browser API keys
-   are public in built JavaScript; website/API restrictions protect their use.
-5. Open Street view at a covered street. Google bills interactive panoramas under
-   its Maps Platform pricing. Key setup cannot create imagery where none exists.
+## Walking Map
 
-Sources:
-- https://developers.google.com/maps/documentation/javascript/streetview
-- https://developers.google.com/maps/documentation/javascript/error-messages
+Street View is now Walking Map. It uses the same OpenStreetMap and wheel renderer
+as the former close-up map, with the photograph pane and Google connection removed.
 
-Without this setup, the companion map and Google handoff work, but embedded
-photographs cannot load. Chart time does not change the date of recorded imagery.
+- Feet-scale radius from 25 to 2,500 feet, default 500 feet.
+- All twelve planetary points, signs, degrees, houses, nakshatras and padas.
+- Full screen / Exit full screen; browser fullscreen where available and an
+  in-page fullscreen fallback on other browsers.
+- Planet selection, feet range, location button, directions and time controls
+  stay available in fullscreen.
+- The radius persists independently from the main Map page's mile range.
+- Use my location centers only the Walking Map. It takes a single location fix;
+  tap again to refresh. It does not continuously track your device.
+- Use searched address returns to the address from the main search field.
+- Walking directions opens Google Maps directions in a separate tab without
+  using a Google Maps API key. The destination is the selected ray's endpoint.
+- A straight symbolic ray is not a walkable street route. Google Maps determines
+  route availability; not every projected endpoint is reachable on foot.
 
-## Upload once
+Your Google environment variable may remain in Vercel; this version does not
+read it or request Google Maps API scripts. Previously uploaded unused source
+helpers do not need to be deleted manually.
 
-1. Extract the ZIP. Open the extracted folder until you see package.json,
-   vercel.json, index.html, src, public, and tests together.
-2. Open your existing AstroWalk v2 GitHub repository.
-3. Upload ALL those files and folders to the repository's top level. Upload the
-   contents, not the ZIP and not an extra enclosing folder. Commit the upload.
-4. Your connected Vercel project will deploy the commit.
-5. Framework: Vite. Root Directory: repository root (leave the default).
-   Build Command: npm run build. Output Directory: dist.
-   The included vercel.json specifies the build and output automatically.
-6. Once Ready, use the project's Visit link. The header says v2.1.
+## Main Map remains intact
 
-There is deliberately no prebuilt dist folder in this ZIP. Vercel must build
-from source. No map key, login system, Base44 service or database is needed to
-open the map. Upload this complete release together; do not mix individual files
-from an older release.
+The Map page retains its existing map renderer, 1–50-mile radius, layers,
+fullscreen and route controls. The shortcut previously labeled Street view is
+now Walking Map. Walking Map location and feet-range adjustments do not replace
+the main Map's saved location or mile-range setting. Planet selection and chart
+time are still shared between views, as they were previously.
 
-Vercel configuration reference: https://vercel.com/docs/project-configuration
+## Time and calculation model
 
-## Included
+The time slider spans -12 to +12 hours in 15-minute steps, with one-hour buttons
+and Now. Preview time is fixed until changed; Now follows the current time.
+Displayed time uses the browser timezone. The timestamp tooltip exposes UTC.
+All calculated placements and equal houses use the selected instant and active
+view's location. Manual placements stay fixed and disable the time controls.
 
-- OpenStreetMap street tiles and user-triggered address search.
-- Coordinates or device location as the map center.
-- Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto, Rahu, Ketu.
-- Live approximate Lahiri sidereal placements; equal houses; mean lunar nodes.
-- Manual sign, degree, house, nakshatra, pada, bearing and retrograde entries.
-- House spokes, numbered nakshatra ring with a name key, zodiac ring, selected ray.
-- House compass convention: H1 east, H4 south, H7 west, H10 north.
-- Adjustable wheel radius 1–50 miles, default 10; separate route corridor width.
-- Zoom-dependent labels, compact phone markers, fullscreen with exit control.
-- Custom definitions and associated locations; JSON export/import.
-- Feet/yards/miles and meters/kilometers for displayed distances.
-- Route handoff to Google Maps; Street View handoff at the selected destination.
-- Error recovery screen instead of an uninformative blank screen.
+Astronomy Engine provides geocentric ecliptic longitudes. The app uses a linear
+approximate Lahiri ayanamsa and mean lunar nodes for Rahu/Ketu. This is not a
+certified ephemeris. Houses are equal 30-degree sectors from the eastern horizon
+ascendant. Geographic compass conventions remain H1 east, H4 south, H7 west,
+and H10 north. A planet ray is a symbolic mapped bearing, not sky azimuth.
 
-## Scope and external services
+Main wheel radius is center to edge (10 miles by default), not a constant width
+for each nakshatra. Each angular sector widens farther from the center.
 
-The 10-mile setting is the center-to-edge wheel radius, not a constant width for
-each angular nakshatra sector. Each sector spans 13°20′ and gets wider farther
-from the center. A projected planet marker is a symbolic compass direction,
-not the celestial body's physical position on Earth or its true sky azimuth.
-Navigation uses Google Maps streets rather than following the straight ray.
+## Data and services
 
-Interactive Street View requires the Maps JavaScript API setup above. Without
-a key, the Open in Google link works as a handoff. The geographically tracked
-wheel is on a companion map, not inside the panorama.
+No login, Base44 account or birth information is required. Manual placements,
+definitions, associated places and preferences are stored in this browser.
+Maps and address searches use external OpenStreetMap-related services and need
+a network connection. Location access requires browser permission.
 
-Public tile/geocoding services and Google imagery need a network connection and
-remain subject to their availability and usage rules. Production traffic may
-require a dedicated provider. Browser location and compass access require
-permission and suitable device support. The phone compass is an experimental
-heading indicator, not calibrated turn-by-turn guidance.
+## Development and checks
 
-Astronomical longitudes use Astronomy Engine, a linear approximate Lahiri
-ayanamsa, and mean Rahu/Ketu. This is not a certified ephemeris. No birth date,
-birth time, account or server profile is collected. Manual placements and
-definitions persist in this browser; searches and map requests reach external
-map providers.
-
-## Development
-
-Use Node 22 or later, then:
+Use Node 22 or later:
 
 ```sh
 npm ci
 npm run dev
+npm test
+npm run build
 ```
 
-npm test runs geometry and placement regression checks. npm run build runs
-those checks and creates dist. npm run preview previews that build locally.
-Opening index.html directly is not a supported way to run a Vite project.
+The build runs regression tests before compiling. Tests cover wheel geometry,
+feet-scale distances, twelve planetary entries, signs and nakshatra boundaries,
+and eastern-horizon ascendants across a 24-hour window.
 
-## Verification
-
-The previous Array.from wheel crash is covered by tests across all supported
-integer radii. The release has also been checked in headless Chromium at desktop
-and phone sizes. Browser tests substitute test tiles to avoid automated requests
-to the public tile server; real maps, GPS hardware and Google imagery still need
-a check on the deployed site.
+Desktop and phone browser checks exercise fullscreen, radius, time, location
+success/denial, directions and isolation of the main map's settings. External
+tiles and device position are simulated in automation; live tile delivery and
+physical GPS accuracy remain dependent on the user's network and device.

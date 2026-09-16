@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bike,
   BookOpen,
-  Camera,
+  Footprints,
   Car,
   ChevronDown,
   Compass,
@@ -22,7 +22,7 @@ import MapView from './components/MapView';
 import PlanetTray from './components/PlanetTray';
 import PlacementsPanel from './components/PlacementsPanel';
 import DefinitionsPanel from './components/DefinitionsPanel';
-import StreetViewPanel from './components/StreetViewPanel';
+import WalkingMapPanel from './components/StreetViewPanel';
 import TimeControls from './components/TimeControls';
 import {
   DEFAULT_DEFINITIONS,
@@ -49,7 +49,7 @@ function initialDefinitions() {
 function NavigationTabs({ active, onChange }) {
   const tabs = [
     { id: 'map', label: 'Map', icon: MapIcon },
-    { id: 'street', label: 'Street view', icon: Camera },
+    { id: 'walking', label: 'Walking Map', icon: Footprints },
     { id: 'placements', label: 'Placements', icon: SlidersHorizontal },
     { id: 'definitions', label: 'Definitions', icon: BookOpen },
   ];
@@ -110,7 +110,7 @@ export default function App() {
   const [timeOffset, setTimeOffset] = useState(0);
   const [timeAnchor, setTimeAnchor] = useState(null);
   const [manualTime, setManualTime] = useState(() => new Date());
-  const [streetPosition, setStreetPosition] = useState(null);
+  const [walkingPosition, setWalkingPosition] = useState(null);
   const changeTime = minutes => {
     if (mode === 'manual') return;
     const offset = Math.max(-720, Math.min(720, minutes));
@@ -119,8 +119,8 @@ export default function App() {
     else if (timeAnchor === null) setTimeAnchor(now.getTime());
   };
   const chartDate = useMemo(() => mode === 'manual' ? manualTime : timeOffset === 0 ? now : new Date(timeAnchor + timeOffset * 60000), [mode, manualTime, now, timeAnchor, timeOffset]);
-  const chartCenter = activeTab === 'street' && streetPosition ? streetPosition : center;
-  useEffect(() => setStreetPosition(null), [center.lat, center.lng]);
+  const chartCenter = activeTab === 'walking' && walkingPosition ? walkingPosition : center;
+  useEffect(() => setWalkingPosition(null), [center.lat, center.lng]);
   const [rangeMiles, setRangeMiles] = useState(() => readStored('astrowalk.rangeMiles', 10));
   const [corridorMiles, setCorridorMiles] = useState(() => readStored('astrowalk.corridorMiles', 0.25));
   const [units, setUnits] = useState(() => readStored('astrowalk.units', 'imperial'));
@@ -262,7 +262,7 @@ export default function App() {
   return (
     <div className={`app-shell${fullScreen ? ' map-fullscreen' : ''}`}>
       <header className="app-header">
-        <div className="brand-block"><div className="brand-mark"><Compass size={21} /></div><div><h1>AstroWalk</h1><p>Sidereal map compass · v2.1</p></div></div>
+        <div className="brand-block"><div className="brand-mark"><Compass size={21} /></div><div><h1>AstroWalk</h1><p>Sidereal map compass · v2.2</p></div></div>
         <form className="location-search" onSubmit={searchLocation}>
           <Search size={17} aria-hidden="true" />
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Enter an address, city, landmark, or coordinates" aria-label="Search for a location" />
@@ -338,7 +338,7 @@ export default function App() {
                 {!showRoute ? (
                   <div className="detail-actions">
                     <button type="button" className="primary-button" onClick={() => setShowRoute(true)}><Navigation size={17} /> Choose destination</button>
-                    <button type="button" className="secondary-button" onClick={() => setActiveTab('street')}><Camera size={17} /> Street view</button>
+                    <button type="button" className="secondary-button" onClick={() => setActiveTab('walking')}><Footprints size={17} /> Walking Map</button>
                   </div>
                 ) : (
                   <div className="route-options">
@@ -357,8 +357,8 @@ export default function App() {
           </section>
         )}
 
-        {activeTab === 'street' && selected && (
-          <StreetViewPanel origin={center} position={streetPosition || center} onPosition={setStreetPosition} planet={selected} placements={placements} ascendant={ascendant} selectedId={selectedId} onSelect={setSelectedId} layers={layers} onBack={() => setActiveTab('map')} />
+        {activeTab === 'walking' && selected && (
+          <WalkingMapPanel position={walkingPosition || center} onPosition={setWalkingPosition} usingDeviceLocation={Boolean(walkingPosition)} locationLabel={locationLabel} planet={selected} placements={placements} ascendant={ascendant} selectedId={selectedId} onSelect={setSelectedId} layers={layers} sectionRef={mapSection} fullScreen={fullScreen} onToggleFullScreen={fullScreen ? exitFullScreen : enterFullScreen} timeControls={<TimeControls date={chartDate} offset={timeOffset} onChange={changeTime} manual={mode === 'manual'} />} onBack={() => {exitFullScreen();setActiveTab('map');}} />
         )}
         {activeTab === 'placements' && (
           <PlacementsPanel mode={mode} onModeChange={value => { if(value === 'manual') setManualTime(chartDate); setMode(value); }} chartDate={chartDate} timeOffset={timeOffset} placements={livePlacements} inputs={manualInputs} onUpdate={updateManualInput} onReset={resetManual} />

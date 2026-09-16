@@ -395,6 +395,31 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .street-workspace { padding: 8px; }
   .time-controls button { padding: 6px 8px; }
 }
+.walking-workspace { padding: 12px; }
+.walking-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.walking-actions select { background: #101529; color: #f8fafc; min-height: 44px; padding: 10px; border-radius: 8px; max-width: 160px; }
+.walking-summary { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 12px 0; font-size: 13px; }
+.walking-summary strong { color: #fbbf24; }
+.walking-radius { display: flex; align-items: center; gap: 10px; font-size: 13px; min-height: 44px; max-width: 800px; }
+.walking-radius input { flex: 1; min-width: 50px; accent-color: #fbbf24; }
+.walking-radius output { min-width: 65px; color: #fbbf24; }
+.walking-wheel-map { position: relative; height: max(440px, calc(100dvh - 410px)); border: 1px solid #475569; border-radius: 12px; overflow: hidden; }
+.walking-wheel-map .wheel-key { top: 8px; left: 8px; max-width: 200px; }
+.walking-wheel-map .bearing-chip { top: 55px; }
+.walking-location, .walking-note { font-size: 12px; color: #cbd5e1; margin: 8px 0; overflow-wrap: anywhere; }
+.walking-error { color: #fca5a5; margin: 8px 0; }
+.expanded-walking { position: fixed; inset: 0; z-index: 2000; width: 100%; height: 100dvh; display: flex; flex-direction: column; background: #070916; overflow-y: auto; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+.expanded-walking .walking-wheel-map { flex: 1; min-height: 280px; height: auto; }
+.expanded-walking .walking-actions, .expanded-walking .walking-radius, .expanded-walking .time-controls { flex-shrink: 0; }
+.expanded-walking .walking-location { display: none; }
+.expanded-walking .walking-summary { margin: 6px 0; }
+@media (max-width: 720px) {
+  .walking-workspace { padding: 8px; }
+  .walking-actions { gap: 6px; }
+  .walking-actions button, .walking-actions a, .walking-actions select { min-height: 44px; font-size: 12px; }
+  .walking-wheel-map { height: 460px; }
+  .expanded-walking .walking-wheel-map { height: auto; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }

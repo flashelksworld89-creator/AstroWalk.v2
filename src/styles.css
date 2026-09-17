@@ -423,3 +423,188 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* =========================================================
+   DUAL ASTROLOGICAL CLOCKS
+   ========================================================= */
+
+.dual-clocks-workspace {
+  min-height: calc(100vh - 123px);
+  padding: 22px;
+  background:
+    radial-gradient(circle at 25% 25%, rgba(244,200,66,.05), transparent 28%),
+    radial-gradient(circle at 75% 25%, rgba(200,216,232,.05), transparent 28%),
+    #080b1b;
+}
+
+.dual-clocks-header {
+  max-width: 1600px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.dual-clocks-kicker {
+  margin: 0 0 4px;
+  color: var(--gold);
+  font-size: 9px;
+  letter-spacing: .18em;
+}
+
+.dual-clocks-header h1 {
+  margin: 0;
+  color: var(--silver);
+  font: 600 24px Cinzel, serif;
+}
+
+.dual-clocks-status {
+  padding: 8px 12px;
+  color: var(--gold);
+  background: rgba(244,200,66,.08);
+  border: 1px solid var(--gold-border);
+  border-radius: 999px;
+  font-size: 10px;
+}
+
+.dual-clocks-grid {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.astro-clock-panel {
+  min-width: 0;
+  overflow: hidden;
+  background: rgba(9,12,31,.94);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.28);
+}
+
+.astro-clock-heading {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.astro-clock-heading small {
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: .15em;
+}
+
+.astro-clock-heading h2 {
+  margin: 3px 0 0;
+  color: var(--gold);
+  font: 600 16px Cinzel, serif;
+}
+
+.astro-clock-heading > span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.astro-clock-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.astro-clock-controls label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.astro-clock-controls input {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 9px;
+  color: var(--silver);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  outline: none;
+}
+
+.astro-clock-controls input:focus {
+  border-color: var(--gold-border);
+}
+
+.astro-clock-stage {
+  position: relative;
+  min-height: 600px;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.clock-placeholder {
+  width: min(90%, 520px);
+  aspect-ratio: 1;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  text-align: center;
+  border: 1px solid rgba(244,200,66,.28);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(244,200,66,.04), transparent 60%);
+}
+
+.clock-placeholder::before {
+  content: "";
+  position: absolute;
+}
+
+.clock-placeholder strong {
+  color: var(--gold);
+  font: 600 18px Cinzel, serif;
+}
+
+.clock-placeholder span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+@media (max-width: 1000px) {
+  .dual-clocks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .astro-clock-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .dual-clocks-workspace {
+    padding: 12px;
+  }
+
+  .dual-clocks-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .astro-clock-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .astro-clock-stage {
+    min-height: 420px;
+  }
+}

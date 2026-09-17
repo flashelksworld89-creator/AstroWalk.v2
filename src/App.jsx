@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bike,
   BookOpen,
@@ -54,7 +55,7 @@ function NavigationTabs({ active, onChange }) {
     { id: 'clocks', label: 'Dual Clocks', icon: Clock3 },
     { id: 'placements', label: 'Placements', icon: SlidersHorizontal },
     { id: 'definitions', label: 'Definitions', icon: BookOpen },
-];
+  ];
   return (
     <nav className="main-tabs" aria-label="Main sections">
       {tabs.map(({ id, label, icon: Icon }) => (
@@ -284,10 +285,6 @@ export default function App() {
       {!fullScreen && <TimeControls date={chartDate} offset={timeOffset} onChange={changeTime} manual={mode === 'manual'} />}
 
       <main className="app-main">
-        {activeTab === 'clocks' && (
-  <DualClocksPanel />
-)}
-        
         {activeTab === 'map' && (
           <section ref={mapSection} className={`map-workspace${fullScreen ? ' expanded-map' : ''}`}>
             {fullScreen && <div className="fullscreen-time"><TimeControls date={chartDate} offset={timeOffset} onChange={changeTime} manual={mode === 'manual'} /></div>}
@@ -365,6 +362,9 @@ export default function App() {
 
         {activeTab === 'walking' && selected && (
           <WalkingMapPanel position={walkingPosition || center} onPosition={setWalkingPosition} usingDeviceLocation={Boolean(walkingPosition)} locationLabel={locationLabel} planet={selected} placements={placements} ascendant={ascendant} selectedId={selectedId} onSelect={setSelectedId} layers={layers} sectionRef={mapSection} fullScreen={fullScreen} onToggleFullScreen={fullScreen ? exitFullScreen : enterFullScreen} timeControls={<TimeControls date={chartDate} offset={timeOffset} onChange={changeTime} manual={mode === 'manual'} />} onBack={() => {exitFullScreen();setActiveTab('map');}} />
+        )}
+        {activeTab === 'clocks' && (
+          <DualClocksPanel defaultCenter={center} defaultLocationLabel={locationLabel} />
         )}
         {activeTab === 'placements' && (
           <PlacementsPanel mode={mode} onModeChange={value => { if(value === 'manual') setManualTime(chartDate); setMode(value); }} chartDate={chartDate} timeOffset={timeOffset} placements={livePlacements} inputs={manualInputs} onUpdate={updateManualInput} onReset={resetManual} />

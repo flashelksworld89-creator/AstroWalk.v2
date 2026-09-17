@@ -24,6 +24,7 @@ import PlacementsPanel from './components/PlacementsPanel';
 import DefinitionsPanel from './components/DefinitionsPanel';
 import WalkingMapPanel from './components/StreetViewPanel';
 import TimeControls from './components/TimeControls';
+import DualClocksPanel from './components/DualClocksPanel';
 import {
   DEFAULT_DEFINITIONS,
   NAKSHATRAS,
@@ -283,6 +284,10 @@ export default function App() {
       {!fullScreen && <TimeControls date={chartDate} offset={timeOffset} onChange={changeTime} manual={mode === 'manual'} />}
 
       <main className="app-main">
+        {activeTab === 'clocks' && (
+  <DualClocksPanel />
+)}
+        
         {activeTab === 'map' && (
           <section ref={mapSection} className={`map-workspace${fullScreen ? ' expanded-map' : ''}`}>
             {fullScreen && <div className="fullscreen-time"><TimeControls date={chartDate} offset={timeOffset} onChange={changeTime} manual={mode === 'manual'} /></div>}

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bike,
   BookOpen,
   Footprints,
   Car,
+  Clock3,
   ChevronDown,
   Compass,
   Crosshair,
@@ -50,9 +50,10 @@ function NavigationTabs({ active, onChange }) {
   const tabs = [
     { id: 'map', label: 'Map', icon: MapIcon },
     { id: 'walking', label: 'Walking Map', icon: Footprints },
+    { id: 'clocks', label: 'Dual Clocks', icon: Clock3 },
     { id: 'placements', label: 'Placements', icon: SlidersHorizontal },
     { id: 'definitions', label: 'Definitions', icon: BookOpen },
-  ];
+];
   return (
     <nav className="main-tabs" aria-label="Main sections">
       {tabs.map(({ id, label, icon: Icon }) => (
